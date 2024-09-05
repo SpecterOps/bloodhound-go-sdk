@@ -1,0 +1,59 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, coverage reports, and output files
+*.out
+*.test
+*.coverprofile
+*.cov
+*.tmp
+
+# Dependency directories
+/vendor/
+Gopkg.lock
+Gopkg.toml
+go.sum
+go.work
+go.work.sum
+
+# Go workspace file
+*.workspace
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Directory for IDE-specific settings and files
+.idea/
+
+# JetBrains specific settings
+*.iml
+*.ipr
+*.iws
+.idea/*
+
+# VS Code settings
+.vscode/
+
+# GoLand IDE specific cache & settings
+/.idea/
+/out/
+
+# Build and IDE specific files
+/.goland/
+/.idea/
+/.DS_Store
+
+# Go build files
+*.exe
+*.out
+*.test
+
+# Local env files
+.env
