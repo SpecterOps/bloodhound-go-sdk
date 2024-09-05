@@ -8,11 +8,15 @@ This is a Go SDK for BloodHound version `<version>`.
 
 ## Examples
 
-There are two examples.  
+### Authentication examples.  
 
 `test_bearer_token_client.go` demonstrates how to use the SDK with bearer token authentication.
 
 `test_hmac_token_client.go` demonstrates how to use the SDK with API token authentication.
+
+### More complex cases
+
+`test_ingest.go` demonstrates slightly more complex use of the SDK.
 
 ## Build And Run Examples
 
@@ -28,6 +32,13 @@ go run ./test_bearer_token_client.go
 ```bash
 cd examples/hmac-authentication
 go run ./test_hmac_token_client.go
+```
+
+### Ingest Example
+
+```bash
+cd examples/use-cases
+go run ./test_ingest.go --file <path to zip file>
 ```
 
 ## Contact

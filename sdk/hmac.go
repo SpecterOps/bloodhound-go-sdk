@@ -90,7 +90,6 @@ func (c *HMACCredentials) Intercept(ctx context.Context, req *http.Request) erro
 	req.Header.Set("Authorization", "bhesignature "+c.TokenID)
 	req.Header.Set("RequestDate", datetimeFormatted)
 	req.Header.Set("Signature", base64.StdEncoding.EncodeToString(digester.Sum(nil)))
-	req.Header.Set("Content-Type", "application/json")
 
 	return nil
 }
