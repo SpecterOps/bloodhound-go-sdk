@@ -4,7 +4,17 @@
 
 This is a Go SDK for BloodHound version `<version>`.
 
-## Dependencies
+## OpenAPI spec
+
+This client SDK is generated from `openapi/openapi.yaml`.
+
+TODO: 
+- Include versioning scheme*
+- Add generation information
+
+## Building and Running
+
+### Dependencies TODO:
 
 ## Examples
 
