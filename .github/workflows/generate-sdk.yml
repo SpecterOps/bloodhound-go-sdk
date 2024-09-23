@@ -3,7 +3,7 @@ name: Generate SDK and Version (Test)
 on:
   push:
     branches:
-      - test-sdk-generation
+      - feature/new-openapi-invokes-generation
     paths:
       - 'sdk/openapi.json'
 
