@@ -14457,9 +14457,7 @@
           },
           "data": {
             "type": "object",
-            "additionalProperties": {
-              "type": "object"
-            }
+            "additionalProperties": true
           },
           "glyphs": {
             "type": "array",
