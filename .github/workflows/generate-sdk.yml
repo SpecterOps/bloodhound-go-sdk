@@ -50,10 +50,10 @@ jobs:
       - name: Commit changes
         run: |
           git add sdk/oapicodegenfromdocjson.go sdk/version.go
-          git commit -m "Generate sdk.go and version.go for test version"
+          git commit -m "Generate oapicodegenfromjson.go and version.go for test version"
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: test-sdk-generation
+          branch: feature/new-openapi-invokes-generation
