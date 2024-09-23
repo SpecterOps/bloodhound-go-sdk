@@ -35,8 +35,8 @@ jobs:
       - name: Generate version.go
         run: |
           TAG="v1.0.0-test"  # Use a test version
-          cat <<EOF > version.go
-          package sdk
+          cat <<EOF > ./sdk/version.go
+          package oapiclient
           
           // Version of the SDK
           const Version = "$TAG"
