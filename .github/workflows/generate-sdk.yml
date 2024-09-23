@@ -1,0 +1,64 @@
+name: Generate SDK and Version (Test)
+
+on:
+  create:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sdk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code at tag
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.20'
+
+      - name: Install oapi-codegen
+        run: go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+      - name: Generate oapicodegenfromdoc.go
+        run: oapi-codegen -generate types,client,spec -package oapiclient -o ./sdk/oapicodegenfromdoc.json ./openapi/openapi.json
+
+      - name: Generate version.go
+        run: |
+          cat <<EOF > ./sdk/version.go
+          package oapiclient
+          
+          // Version of the SDK
+          const Version = "${{ github.ref_name }}"
+          EOF
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changes
+        run: |
+          git add sdk/oapicodegenfromdocjson.go sdk/version.go
+          git commit -m "Generate oapicodegenfromjson.go and version.go for version  ${{ github.ref_name }}""
+
+      - name: Move Tag
+        run: |
+          git tag -d ${{ github.ref_name }}
+          git push origin :refs/tags/${{ github.ref_name }}
+          git tag ${{ github.ref_name }}
+          git push origin --tags
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
