@@ -1,9 +1,11 @@
-name: Generate SDK and Version
+name: Generate SDK and Version (Test)
 
 on:
-  create:
-    tags:
-      - '*'
+  push:
+    branches:
+      - test-sdk-generation
+    paths:
+      - 'sdk/openapi.json'
 
 permissions:
   contents: write
@@ -13,10 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code at tag
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -33,11 +34,12 @@ jobs:
 
       - name: Generate version.go
         run: |
+          TAG="v1.0.0-test"  # Use a test version
           cat <<EOF > version.go
           package sdk
           
           // Version of the SDK
-          const Version = "${{ github.ref_name }}"
+          const Version = "$TAG"
           EOF
 
       - name: Configure Git
@@ -48,17 +50,10 @@ jobs:
       - name: Commit changes
         run: |
           git add sdk/oapicodegenfromdocjson.go sdk/version.go
-          git commit -m "Generate sdk.go and version.go for version ${{ github.ref_name }}"
-
-      - name: Move Tag
-        run: |
-          git tag -d ${{ github.ref_name }}
-          git push origin :refs/tags/${{ github.ref_name }}
-          git tag ${{ github.ref_name }}
-          git push origin --tags
+          git commit -m "Generate sdk.go and version.go for test version"
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          branch: test-sdk-generation
