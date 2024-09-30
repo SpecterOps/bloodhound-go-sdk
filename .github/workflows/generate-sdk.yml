@@ -1,9 +1,11 @@
-name: Generate SDK and Version (Test)
+name: Generate SDK on PR Merge
 
 on:
-  create:
-    tags:
-      - '*'
+  push:
+    branches:
+      - main
+    paths:
+      - 'openapi.json'
 
 permissions:
   contents: write
@@ -13,52 +15,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code at tag
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-          persist-credentials: false
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: '1.20'
+    - name: Get Last Commit Message
+      id: commit_message
+      run: |
+        COMMIT_MSG=$(git log -1 --pretty=%B)
+        echo "commit_message=$COMMIT_MSG" >> $GITHUB_OUTPUT
 
-      - name: Install oapi-codegen
-        run: go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+    - name: Check for Generate SDK Flag
+      if: contains(steps.commit_message.outputs.commit_message, '[generate-sdk]')
+      run: echo "Generate SDK flag found. Proceeding with SDK generation."
 
-      - name: Generate oapicodegenfromdoc.go
-        run: oapi-codegen -generate types,client,spec -package oapiclient -o ./sdk/oapicodegenfromdoc.json ./openapi/openapi.json
+    - name: Exit if Flag Not Found
+      if: "! contains(steps.commit_message.outputs.commit_message, '[generate-sdk]')"
+      run: |
+        echo "Generate SDK flag not found in commit message. Exiting."
+        exit 0
 
-      - name: Generate version.go
-        run: |
-          cat <<EOF > ./sdk/version.go
-          package oapiclient
-          
-          // Version of the SDK
-          const Version = "${{ github.ref_name }}"
-          EOF
+    - name: Extract version from openapi.json
+      id: extract_version
+      run: |
+        VERSION=$(jq -r '.info.version' openapi.json)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.20'
 
-      - name: Commit changes
-        run: |
-          git add sdk/oapicodegenfromdocjson.go sdk/version.go
-          git commit -m "Generate oapicodegenfromjson.go and version.go for version  ${{ github.ref_name }}""
+    - name: Install oapi-codegen
+      run: go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 
-      - name: Move Tag
-        run: |
-          git tag -d ${{ github.ref_name }}
-          git push origin :refs/tags/${{ github.ref_name }}
-          git tag ${{ github.ref_name }}
-          git push origin --tags
+    - name: Generate sdk.go
+      run: oapi-codegen -generate types,client,spec -package oapiclient -o ./sdk/oapicodegenfromdoc.go ./openapi/openapi.json
 
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+    - name: Generate version.go
+      run: |
+        cat <<EOF > ./sdk/version.go
+        package sdk
+
+        // Version of the SDK
+        const Version = "${{ steps.extract_version.outputs.version }}"
+        EOF
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Commit changes
+      run: |
+        git add ./sdk/oapicodegenfromdoc.go ./sdk/version.go
+        git commit -m "Generate oapicodegenfromdoc.go and version.go"
+
+    - name: Push changes
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: main
+
