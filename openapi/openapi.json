@@ -14457,9 +14457,7 @@
           },
           "data": {
             "type": "object",
-            "additionalProperties": {
-              "type": "object"
-            }
+            "additionalProperties": true
           },
           "glyphs": {
             "type": "array",
@@ -14630,14 +14628,16 @@
       },
       "model.bh-graph.graph": {
         "type": "object",
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/model.bh-graph.node"
-          },
-          {
-            "$ref": "#/components/schemas/model.bh-graph.edge"
-          }
-        ]
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/model.bh-graph.node"
+            },
+            {
+              "$ref": "#/components/schemas/model.bh-graph.edge"
+            }
+          ]
+        }
       },
       "api.params.predicate.filter.contains": {
         "type": "string",
