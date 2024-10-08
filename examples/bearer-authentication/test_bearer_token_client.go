@@ -19,9 +19,9 @@ package main
 import (
 	context "context"
 	"fmt"
+	. "github.com/SpecterOps/bloodhound-go-sdk/sdk"
 	. "github.com/oapi-codegen/oapi-codegen/v2/pkg/securityprovider"
 	"log"
-	. "oapi-client/sdk"
 )
 
 func main() {

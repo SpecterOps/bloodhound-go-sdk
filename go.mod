@@ -1,4 +1,4 @@
-module oapi-client
+module github.com/SpecterOps/bloodhound-go-sdk
 
 go 1.21.0
 
