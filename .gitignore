@@ -16,7 +16,6 @@
 /vendor/
 Gopkg.lock
 Gopkg.toml
-go.sum
 go.work
 go.work.sum
 
