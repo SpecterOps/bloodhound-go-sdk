@@ -19,9 +19,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	. "github.com/SpecterOps/bloodhound-go-sdk/sdk"
 	"io"
 	"log"
-	. "oapi-client/sdk"
+	"os"
 	"strings"
 )
 
@@ -32,20 +33,28 @@ func main() {
 		log.Fatal("Ooof cant make bloodhound.localhost resolving http.Client", rerr)
 	}
 
-	// API token
-	var token = "/2lJ0Gf3qjb6zvZw01EoFmK34qtwkiOOeUgcofMXh5dyYEF61LwRvQ=="
-	var token_id = "8efd2add-c453-4a01-a3e0-2775c9b9cbc4"
+	// API token and token id obtained from environment variables
+	key := os.Getenv("API_TOKEN_KEY")
+	id := os.Getenv("API_TOKEN_ID")
+	if key == "" || id == "" {
+		log.Fatal("You must set API_TOKEN_KEY and API_TOKEN_ID environment variables to your API key and id values.")
+	}
+
+	// server URL obtained from environment variables
+	server := os.Getenv("BLOODHOUND_SERVER")
+	if server == "" {
+		log.Fatal("You must set BLOODHOUND_SERVER environment variable to the URL of the bloodhound server")
+	}
 
 	// HMAC Security Provider
-	var hmacTokenProvider, serr = NewSecurityProviderHMACCredentials(token, token_id)
+	var hmacTokenProvider, serr = NewSecurityProviderHMACCredentials(key, id)
 
 	if serr != nil {
 		log.Fatal("Error creating bearer token middleware", serr)
 	}
 	client, crerr := NewClientWithResponses(
-		"http://bloodhound.localhost/",
+		server,
 		WithRequestEditorFn(hmacTokenProvider.Intercept),
-		WithBaseURL("http://bloodhound.localhost/"),
 		WithHTTPClient(customHttpClient))
 	if crerr != nil {
 		log.Fatal("Error creating client", crerr)
@@ -60,7 +69,7 @@ func main() {
 		log.Fatal("Error getting available domains", response.StatusCode())
 	}
 
-	// if success we get domainentity computers and we get this as a list
+	// if success we get domainentity computers, and we get this as a list
 	for _, y := range *response.JSON200.Data {
 		log.Printf("Domain name: %s id: %s type: %s", *y.Name, *y.Id, *y.Type)
 		listReturnType := "list"
@@ -70,6 +79,9 @@ func main() {
 				Type: (*GetDomainEntityComputersParamsType)(&listReturnType),
 			},
 		)
+		if err != nil {
+			log.Fatal("Error getting domain computers", err)
+		}
 		if computersResponse.StatusCode() != 200 {
 			log.Println("Error getting domain computersResponse", computersResponse.StatusCode())
 			continue
@@ -104,7 +116,7 @@ func main() {
 				log.Println("Error getting resp", resp.StatusCode)
 				continue
 			}
-			// Make
+
 			for key, v := range nodes {
 				if strings.HasPrefix(key, "rel_") {
 					var graphEdge *ModelBhGraphEdge
@@ -127,31 +139,6 @@ func main() {
 				log.Println("graph node ", key, value.Label)
 				log.Println("graph node ", key, v)
 			}
-			//var graphItem *ModelBhGraphItem
-			//json.Unmarshal(body, &graphItem)
-			//log.Println(graphItem)
-			//var graphData map[string]json.RawMessage
-			//err = json.Unmarshal(body, &graphData)
-			//if err != nil {
-			//	log.Println("Error getting resp", resp.StatusCode)
-			//	continue
-			//}
-			//for key, value := range graphData {
-			//	var foo ModelBhGraphGraph
-			//	jerr := json.Unmarshal(value, &foo)
-			//	if jerr != nil {
-			//		var prettyJSON bytes.Buffer
-			//		json.Indent(&prettyJSON, value, "", "  ")
-			//		log.Printf("Error unmarshalling key: *%s json: %s\n", key, prettyJSON.String())
-			//	} else {
-			//		log.Println("we unmarshalled a ModelBhGraphGraph")
-			//	}
-			//
-			//}
-			//log.Println("Computers response", body)
-		}
-		if err != nil {
-			return
 		}
 	}
 }

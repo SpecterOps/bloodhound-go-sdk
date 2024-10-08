@@ -18,6 +18,13 @@ TODO:
 
 ## Examples
 
+For each of the examples, you must set the following environment variables:
+
+| Name | Value | Example                               |
+|------|-------|---------------------------------------|
+ | API_TOKEN | Generated API token | hk...jgfZCQ==                         |
+ | API_TOKEN_ID | Id of generated API token | 467e-bb1f-dc29...5bfc                 |
+ | BLOODHOUND_SERVER | Server URL | https://demo.bloodhoundenterprise.io/ |
 ### Authentication examples.  
 
 `test_bearer_token_client.go` demonstrates how to use the SDK with bearer token authentication.

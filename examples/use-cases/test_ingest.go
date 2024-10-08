@@ -20,8 +20,8 @@ import (
 	context "context"
 	"flag"
 	"fmt"
+	. "github.com/SpecterOps/bloodhound-go-sdk/sdk"
 	"log"
-	. "oapi-client/sdk"
 	"os"
 )
 
@@ -89,20 +89,28 @@ func main() {
 		log.Fatal("Ooof cant make bloodhound.localhost resolving http.Client", rerr)
 	}
 
-	// API token
-	var token = "Os+sghW8Op2taPSWNMca0eKYL6fwMHzWt9dLXMTVUZmFfxwe/qMpQw==" // Your API token
-	var token_id = "a560f1b7-a33a-4ee9-b25b-473cce9815ea"                  // Your API token id
+	// API token and token id obtained from environment variables
+	key := os.Getenv("API_TOKEN_KEY")
+	id := os.Getenv("API_TOKEN_ID")
+	if key == "" || id == "" {
+		log.Fatal("You must set API_TOKEN_KEY and API_TOKEN_ID environment variables to your API key and id values.")
+	}
+
+	// server URL obtained from environment variables
+	server := os.Getenv("BLOODHOUND_SERVER")
+	if server == "" {
+		log.Fatal("You must set BLOODHOUND_SERVER environment variable to the URL of the bloodhound server")
+	}
 
 	// HMAC Security Provider
-	var hmacTokenProvider, serr = NewSecurityProviderHMACCredentials(token, token_id)
+	var hmacTokenProvider, serr = NewSecurityProviderHMACCredentials(key, id)
 
 	if serr != nil {
 		log.Fatal("Error creating bearer token middleware", serr)
 	}
 	client, crerr := NewClientWithResponses(
-		"http://bloodhound.localhost/",
+		server,
 		WithRequestEditorFn(hmacTokenProvider.Intercept),
-		WithBaseURL("http://bloodhound.localhost/"),
 		WithHTTPClient(customHttpClient))
 	if crerr != nil {
 		log.Fatal("Error creating client", crerr)
