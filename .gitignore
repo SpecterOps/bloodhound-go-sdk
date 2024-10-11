@@ -16,7 +16,6 @@
 /vendor/
 Gopkg.lock
 Gopkg.toml
-go.sum
 go.work
 go.work.sum
 
@@ -25,7 +24,6 @@ go.work.sum
 
 # Logs and temporary files
 *.log
-*.tmp
 *.bak
 *.swp
 
@@ -47,13 +45,9 @@ go.work.sum
 
 # Build and IDE specific files
 /.goland/
-/.idea/
+
 /.DS_Store
 
-# Go build files
-*.exe
-*.out
-*.test
 
 # Local env files
 .env
